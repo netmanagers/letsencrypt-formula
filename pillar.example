@@ -22,6 +22,9 @@ letsencrypt:
   config:
     server: https://acme-v02.api.letsencrypt.org/directory
     email: webmaster@example.com
+    # Don't add an authenticator here if you need (or expect) to mix authentication
+    # methods.
+    # In such case, use authenticators below
     authenticator: webroot
     webroot-path: /var/lib/www
     agree-tos: true
@@ -43,6 +46,24 @@ letsencrypt:
     user: root
     group: root
     mode: 755
+  # If you need to manage certificates for a few domainsets on the same node, but
+  # the authentication for each of these vary, you need to specify
+  # an authenticator for each of the domainsets instead of setting it in cli.ini
+  # Set them in this parameter. You can use the reserved name `default` to set
+  # the authenticator that will be used in case no other is specified for a
+  # particular domainset.
+  # Default: authenticators: {}
+
+  authenticators:
+    default: nginx
+    mail: route53
+  # As with `authenticators` above, you can specify different install methods for
+  # your different certificates. The installer set as `default` will be used to
+  # all the domainsets with no particular installer
+  # Default: installers: {}
+  installers:
+    default: nginx
+
   domainsets:
     www:
       - example.com

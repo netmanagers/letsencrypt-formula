@@ -460,3 +460,29 @@ suites:
     verifier:
       inspec_tests:
         - path: test/integration/rpm
+  - name: domains
+    includes:
+      - debian-10-3003-0-py3
+    provisioner:
+      dependencies:
+        - name: apt
+          repo: git
+          source: https://github.com/saltstack-formulas/apt-formula.git
+        - name: states
+          path: ./test/salt
+      state_top:
+        base:
+          '*':
+            - letsencrypt._mapdata
+            - states.install_letsencrypt_test_server
+            - letsencrypt
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - letsencrypt
+      pillars_from_files:
+        letsencrypt.sls: test/salt/pillar/domains.sls
+    verifier:
+      inspec_tests:
+        - path: test/integration/domains

@@ -37,7 +37,19 @@
 
 {% endif %}
 
+{%- set default_authenticator = '--authenticator ' ~ letsencrypt.authenticators['default']
+                                if letsencrypt.authenticators['default'] is defined else '' %}
+
+{%- set default_installer = '--installer ' ~ letsencrypt.installers['default']
+                            if letsencrypt.installers['default'] is defined else '' %}
+
 {% for setname, domainlist in letsencrypt.domainsets.items() %}
+
+  # Set an authenticator and a installer for the domainset or use defaults set above
+  {%- set authenticator = '--authenticator ' ~ letsencrypt.authenticators[setname]
+                          if letsencrypt.authenticators[setname] is defined else default_authenticator %}
+  {%- set installer = '--installer ' ~ letsencrypt.installers[setname]
+                      if letsencrypt.installers[setname] is defined else default_installer %}
 
 # domainlist[0] represents the "CommonName", and the rest
 # represent SubjectAlternativeNames
@@ -47,6 +59,8 @@ create-initial-cert-{{ setname }}-{{ domainlist | join('+') }}:
         {{ create_cert_cmd }} {{ letsencrypt.create_init_cert_subcmd }} \
           --quiet \
           --non-interactive \
+          {{ authenticator }} \
+          {{ installer }} \
           --cert-name {{ setname }} \
           -d {{ domainlist|join(' -d ') }}
       {% if not letsencrypt.use_package %}
